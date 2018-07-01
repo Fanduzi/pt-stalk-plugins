@@ -1,0 +1,14 @@
+#!/bin/bash
+# triggers when Threads_connected > 750 or Threads_running > 200 increase more than THRESHOLD 
+
+trg_plugin() {
+mysqladmin -uroot -pSuperSecurt -S /path_to_socket/mysql.sock extended-status |\
+awk -F"|" \
+"BEGIN{ count=0; }"\
+'{ if ($2 ~ /Threads_connected/){Threads_connected=$3;}\
+else if ($2 ~ /Threads_running/){Threads_running=$3;}\
+else if ($2 ~ /Uptime / && count >= 0){\
+  print Threads_connected,Threads_running;\
+}}' | awk 'BEGIN{counter=0} \
+{ if ($1 > 750 || $2 > 200 ) counter++ ; } END {print counter}'
+}
